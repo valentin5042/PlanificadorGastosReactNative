@@ -48,7 +48,7 @@ const ControlPresupuesto = ({ presupuesto, gastos, resetearApp }) => {
 
           <Pressable
             style={styles.boton}
-            onLongPress={resetearApp}
+            onPress={resetearApp}
           >
             <Text style={styles.textoBoton}>Reiniciar App</Text>
           </Pressable>

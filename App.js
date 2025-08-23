@@ -39,17 +39,17 @@ const App = () => {
 
 
 useEffect(() => {
-  if (isValidPresupuesto) {
+  if (isValidPresupuesto && presupuesto > 0) {
     const guardarPresupuestoStorage = async () => {
       try {
-        await AsyncStorage.setItem('planificador_presupuesto', presupuesto)
+        await AsyncStorage.setItem('planificador_presupuesto', presupuesto.toString())
       } catch (error) {
         console.log(error)
       }
     }
     guardarPresupuestoStorage()
   }
-}, [ isValidPresupuesto ])
+}, [ presupuesto, isValidPresupuesto ])
 
 
 useEffect(() => {
@@ -79,9 +79,12 @@ useEffect(() => {
 }, [gastos])
 
   const handleNuevoPresupuesto = (presupuesto) => {
-    if (Number(presupuesto) > 0) {
+    const presupuestoNumero = Number(presupuesto)
+    
+    if (presupuestoNumero > 0) {
+      setPresupuesto(presupuestoNumero)
       setIsValidPresupuesto(true)
-    }else {
+    } else {
       Alert.alert('Error', 'El presupuesto no puede ser 0 o menor', 'ok')
     }
   }
@@ -160,79 +163,72 @@ useEffect(() => {
 
   return (
     <View style={styles.contenedor}>
-      <ScrollView>
-        <View style={styles.header}>
-
-          <Header/>
-
-          {isValidPresupuesto ? (
+      {isValidPresupuesto ? (
+        <ScrollView>
+          <View style={styles.header}>
+            <Header/>
             <ControlPresupuesto 
               presupuesto={presupuesto}
               gastos={gastos}
               resetearApp={resetearApp}
             />
-          ) : (
-            <NuevoPresupuesto
-              presupuesto={presupuesto}
-              setPresupuesto={setPresupuesto}
-              handleNuevoPresupuesto={handleNuevoPresupuesto}
+          </View>
+
+          <Filtro 
+            filtro={filtro}
+            setFiltro={setFiltro}
+            gastos={gastos}
+            setGastosFiltrados={setGastosFiltrados}
           />
-          ) }
-
+          <ListadoGastos 
+            gastos={gastos}
+            setModal={setModal}
+            setGasto={setGasto}
+            filtro={filtro}
+            gastosFiltrados={gastosFiltrados}
+          />
+        </ScrollView>
+      ) : (
+        <View style={styles.header}>
+          <Header/>
+          <NuevoPresupuesto
+            presupuesto={presupuesto}
+            setPresupuesto={setPresupuesto}
+            handleNuevoPresupuesto={handleNuevoPresupuesto}
+          />
         </View>
+      )}
 
+      {modal && (
+        <Modal
+        animationType='slide'
+          visible={modal}
+          onRequestClose={() => {
+            setModal(!modal)
+          }}
+        >
+          <FormularioGasto 
+            setModal={setModal}
+            handleGasto={handleGasto}
+            gasto={gasto}
+            setGasto={setGasto}
+            eliminarGasto={eliminarGasto}
+          />
+        </Modal>
+      )}
 
-            {isValidPresupuesto && (
-              <>
-              <Filtro 
-                filtro={filtro}
-                setFiltro={setFiltro}
-                gastos={gastos}
-                setGastosFiltrados={setGastosFiltrados}
-              />
-                <ListadoGastos 
-                  gastos={gastos}
-                  setModal={setModal}
-                  setGasto={setGasto}
-                  filtro={filtro}
-                  gastosFiltrados={gastosFiltrados}
-                />
-              </>
-            )}
-      </ScrollView>
-
-          {modal && (
-            <Modal
-            animationType='slide'
-              visible={modal}
-              onRequestClose={() => {
-                setModal(!modal)
-              }}
-            >
-              <FormularioGasto 
-                setModal={setModal}
-                handleGasto={handleGasto}
-                gasto={gasto}
-                setGasto={setGasto}
-                eliminarGasto={eliminarGasto}
-              />
-            </Modal>
-          )}
-
-        
-
-            {isValidPresupuesto && (
-              <Pressable
-                style={styles.pressable}
-                onPress={() => setModal(!modal)}
-              >
-                <Image
-                style={styles.imagen}
-                  source={require('./src/img/nuevo-gasto.png')}
-                  
-                />
-              </Pressable>
-            )}
+      {isValidPresupuesto && (
+        <Pressable
+          style={styles.pressable}
+          onPress={() => setModal(!modal)}
+        >
+          <Image
+          style={styles.imagen}
+            source={require('./src/img/nuevo-gasto.png')}
+            
+          />
+        </Pressable>
+      )}
 
     </View>
   );
@@ -240,13 +236,12 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
     contenedor: {
-      backgroundColor: '#F5F5F5',
+      backgroundColor: '#1e40af',
       flex: 1
     },
-     header: {
-        backgroundColor: '#1048a4',
-        minHeight: 400
-        
+    header: {
+      flex: 1,
+      justifyContent: 'center'
     },
     pressable: {
       width: 60,
