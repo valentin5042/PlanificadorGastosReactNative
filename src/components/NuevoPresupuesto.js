@@ -1,27 +1,23 @@
 import React, { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, Dimensions } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, Dimensions, Platform } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 
-const { width } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window')
 
 const NuevoPresupuesto = ({ presupuesto, setPresupuesto, handleNuevoPresupuesto }) => {
   const [presupuestoLocal, setPresupuestoLocal] = useState('')
 
   return (
     <View style={styles.contenedor}>
-      {/* Header minimalista */}
+      {/* Header */}
       <View style={styles.header}>
+        <Text style={styles.titulo}>PLANIFICADOR DE GASTOS</Text>
         <Text style={styles.subtitulo}>Establece tu límite de gastos mensual</Text>
       </View>
 
-      {/* Input ultra moderno */}
+      {/* Input principal */}
       <View style={styles.inputContainer}>
-        <LinearGradient
-          colors={['#f0f9ff', '#e0f2fe', '#bae6fd']}
-          style={styles.inputWrapper}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
+        <View style={styles.inputWrapper}>
           <Text style={styles.currencySymbol}>$</Text>
           <TextInput 
             keyboardType='numeric'
@@ -31,35 +27,54 @@ const NuevoPresupuesto = ({ presupuesto, setPresupuesto, handleNuevoPresupuesto 
             value={presupuestoLocal}
             onChangeText={setPresupuestoLocal}
           />
-        </LinearGradient>
+        </View>
       </View>
 
-      {/* Botón ultra moderno */}
+      {/* Botón continuar */}
       <Pressable 
         style={({ pressed }) => [
           styles.boton,
-          pressed && styles.botonPressed
+          presupuestoLocal.trim() === '' ? styles.botonDesactivado : null,
+          pressed && presupuestoLocal.trim() !== '' && styles.botonPressed
         ]}
-        onPress={() => handleNuevoPresupuesto(presupuestoLocal)}
+        onPress={() => {
+          if (presupuestoLocal.trim() !== '') {
+            handleNuevoPresupuesto(presupuestoLocal)
+          }
+        }}
+        disabled={presupuestoLocal.trim() === ''}
       >
         <LinearGradient
-          colors={['#3b82f6', '#1d4ed8']}
+          colors={presupuestoLocal.trim() === '' 
+            ? ['#6b7280', '#4b5563', '#374151'] 
+            : ['#1e40af', '#1e3a8a', '#1e3a8a']
+          }
           style={styles.botonGradient}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
+          end={{ x: 1, y: 1 }}
         >
-          <Text style={styles.botonTexto}>Continuar</Text>
+          <Text style={[
+            styles.botonTexto,
+            presupuestoLocal.trim() === '' && styles.botonTextoDesactivado
+          ]}>
+            Continuar
+          </Text>
         </LinearGradient>
       </Pressable>
 
-      {/* Información adicional */}
+      {/* Consejo de inversión */}
       <View style={styles.infoSection}>
         <View style={styles.infoCard}>
-          <Text style={styles.infoIcon}>📈</Text>
-          <Text style={styles.infoTitle}>Consejo de Inversión</Text>
-          <Text style={styles.infoText}>Establece un presupuesto realista y considera destinar el 20% a ahorros e inversiones</Text>
+          <View style={styles.infoHeader}>
+            <Text style={styles.infoIcon}>📈</Text>
+            <Text style={styles.infoTitle}>Consejo de Inversión</Text>
+          </View>
+          <Text style={styles.infoText}>
+            Establece un presupuesto realista y considera destinar el 20% a ahorros e inversiones
+          </Text>
         </View>
         
+        {/* Estadísticas de presupuesto */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>50%</Text>
@@ -80,161 +95,200 @@ const NuevoPresupuesto = ({ presupuesto, setPresupuesto, handleNuevoPresupuesto 
 }
 
 const styles = StyleSheet.create({
-    contenedor: {
-        backgroundColor: '#ffffff',
-        marginHorizontal: 20,
-        borderRadius: 24,
-        paddingVertical: 50,
-        paddingHorizontal: 40,
-        marginTop: 40,
-        shadowColor: "#60a5fa",
-        shadowOffset: {
-            width: 0,
-            height: 0,
-        },
-        shadowOpacity: 0.8,
-        shadowRadius: 20,
-        elevation: 15,
-        // Efecto neon con múltiples sombras
-        borderWidth: 1,
-        borderColor: '#60a5fa',
-        // Sombra interna para efecto glow
-        shadowColor: "#60a5fa",
-        shadowOffset: {
-            width: 0,
-            height: 0,
-        },
-        shadowOpacity: 0.8,
-        shadowRadius: 20,
-        // Sombra externa adicional para más profundidad
-        shadowColor: "#3b82f6",
-        shadowOffset: {
-            width: 0,
-            height: 0,
-        },
-        shadowOpacity: 0.6,
-        shadowRadius: 30,
-    },
-    header: {
-        alignItems: 'center',
-        marginBottom: 50
-    },
-    subtitulo: {
-        fontSize: 18,
-        color: '#64748b',
-        textAlign: 'center',
-        lineHeight: 26,
-        fontWeight: '400'
-    },
-    inputContainer: {
-        marginBottom: 50
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 20,
-        paddingHorizontal: 24,
-        paddingVertical: 20,
-        borderWidth: 2,
-        borderColor: '#60a5fa',
-        marginBottom: 16,
-        shadowColor: "#60a5fa",
-        shadowOffset: {
-            width: 0,
-            height: 0,
-        },
-        shadowOpacity: 0.6,
+  contenedor: {
+    backgroundColor: '#ffffff',
+    marginHorizontal: 16,
+    borderRadius: 20,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
+    // Sombras optimizadas para Android con efecto glow azul
+    ...Platform.select({
+      android: {
+        elevation: 8,
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
         shadowRadius: 15,
-        elevation: 10,
-    },
-    currencySymbol: {
-        fontSize: 28,
-        fontWeight: '600',
-        color: '#3b82f6',
-        marginRight: 12
-    },
-    input: {
-        flex: 1,
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#1e293b',
-        textAlign: 'center'
-    },
-    inputHint: {
-        fontSize: 14,
-        color: '#94a3b8',
-        textAlign: 'center',
-        fontWeight: '400'
-    },
-    boton: {
-        borderRadius: 20,
-        overflow: 'hidden',
-        marginBottom: 20
-    },
-    botonPressed: {
-        transform: [{ scale: 0.96 }]
-    },
-    botonGradient: {
-        paddingVertical: 20,
-        paddingHorizontal: 40,
-        alignItems: 'center'
-    },
-    botonTexto: {
-        color: '#ffffff',
-        fontSize: 18,
-        fontWeight: '700',
-        letterSpacing: 0.5
-    },
-    infoSection: {
-        marginTop: 40,
-        paddingTop: 30,
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-    },
-    infoCard: {
-        backgroundColor: '#f9f9f9',
-        borderRadius: 15,
-        padding: 20,
-        marginBottom: 20,
-        shadowColor: '#000',
+      },
+      ios: {
+        shadowColor: '#3b82f6',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+      }
+    })
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32
+  },
+  titulo: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    textAlign: 'center',
+    marginBottom: 8,
+    letterSpacing: 1
+  },
+  subtitulo: {
+    fontSize: 16,
+    color: '#64748b',
+    textAlign: 'center',
+    lineHeight: 22,
+    fontWeight: '400'
+  },
+  inputContainer: {
+    marginBottom: 32
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderWidth: 2,
+    borderColor: '#dbeafe',
+    // Sombra sutil para Android con efecto glow azul
+    ...Platform.select({
+      android: {
         elevation: 3,
-    },
-    infoIcon: {
-        fontSize: 30,
-        marginBottom: 10,
-    },
-    infoTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: '#333',
-    },
-    infoText: {
-        fontSize: 14,
-        color: '#666',
-        lineHeight: 20,
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 20,
-    },
-    statItem: {
-        alignItems: 'center',
-    },
-    statNumber: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#3b82f6',
-    },
-    statLabel: {
-        fontSize: 12,
-        color: '#94a3b8',
-        marginTop: 5,
-    },
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      ios: {
+        shadowColor: '#3b82f6',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+      }
+    })
+  },
+  currencySymbol: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1e40af',
+    marginRight: 12
+  },
+  input: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#1e293b',
+    textAlign: 'center'
+  },
+  boton: {
+    borderRadius: 16,
+    marginBottom: 24,
+    overflow: 'hidden',
+    // Sombra para Android
+    ...Platform.select({
+      android: {
+        elevation: 6,
+      },
+      ios: {
+        shadowColor: '#1e40af',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.4,
+        shadowRadius: 6,
+      }
+    })
+  },
+  botonGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+  },
+  botonDesactivado: {
+    opacity: 0.6,
+  },
+  botonPressed: {
+    transform: [{ scale: 0.98 }]
+  },
+  botonTextoDesactivado: {
+    color: '#ffffff',
+  },
+  botonTexto: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '600',
+    letterSpacing: 0.5
+  },
+  infoSection: {
+    marginTop: 24,
+    paddingTop: 24,
+    borderTopWidth: 1,
+    borderTopColor: '#e2e8f0',
+  },
+  infoCard: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    // Sombra sutil para Android
+    ...Platform.select({
+      android: {
+        elevation: 2,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      }
+    })
+  },
+  infoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12
+  },
+  infoIcon: {
+    fontSize: 24,
+    marginRight: 12
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+    flex: 1
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#64748b',
+    lineHeight: 20
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#f1f5f9',
+    borderRadius: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 16
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1
+  },
+  statNumber: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1e40af',
+    marginBottom: 4
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '500',
+    textAlign: 'center'
+  }
 })
 
 export default NuevoPresupuesto

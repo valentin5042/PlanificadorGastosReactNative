@@ -236,7 +236,7 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
     contenedor: {
-      backgroundColor: '#1e40af',
+      backgroundColor: '#000A2C',
       flex: 1
     },
     header: {
