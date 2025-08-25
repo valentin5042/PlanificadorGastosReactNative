@@ -166,11 +166,10 @@ useEffect(() => {
       {isValidPresupuesto ? (
         <ScrollView>
           <View style={styles.header}>
-            <Header/>
+            <Header resetearApp={resetearApp} mostrarBoton={true}/>
             <ControlPresupuesto 
               presupuesto={presupuesto}
               gastos={gastos}
-              resetearApp={resetearApp}
             />
           </View>
 
@@ -190,7 +189,7 @@ useEffect(() => {
         </ScrollView>
       ) : (
         <View style={styles.header}>
-          <Header/>
+          <Header resetearApp={resetearApp} mostrarBoton={false}/>
           <NuevoPresupuesto
             presupuesto={presupuesto}
             setPresupuesto={setPresupuesto}

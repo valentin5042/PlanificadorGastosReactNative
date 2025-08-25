@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Text, View, StyleSheet, Pressable } from 'react-native'
+import { Text, View, StyleSheet, Pressable, Platform, Image } from 'react-native'
 import CircularProgress from 'react-native-circular-progress-indicator'
+import { LinearGradient } from 'expo-linear-gradient'
 
 import globalStyles from '../styles'
 import { formatearCantidad } from '../helpers'
@@ -28,80 +29,174 @@ const ControlPresupuesto = ({ presupuesto, gastos, resetearApp }) => {
 
   return (
     <View style={styles.contenedor}>
-        <View style={styles.centrarGrafica}>
-            <CircularProgress 
-              value={porcentaje}
-              duration={1000}
-              radius={150}
-              valueSuffix={'%'}
-              title='Gastado'
-              inActiveStrokeColor='#f5f5f5'
-              inActiveStrokeWidth={20}
-              activeStrokeColor='#3B82F6'
-              activeStrokeWidth={20}
-              titleStyle={{ fontWeight: 'bold',fontSize: 20 }}
-              titleColor='#64748b'
-            />
-    </View>
+      {/* Gráfico circular moderno */}
+      <View style={styles.graficaContainer}>
+        <CircularProgress 
+          value={porcentaje}
+          duration={1000}
+          radius={120}
+          valueSuffix={'%'}
+          title='Gastado'
+          inActiveStrokeColor='#f1f5f9'
+          inActiveStrokeWidth={16}
+          activeStrokeColor='#1e40af'
+          activeStrokeWidth={16}
+          titleStyle={styles.tituloGrafica}
+          titleColor='#64748b'
+        />
+      </View>
 
-    <View style={styles.contenedorTexto}>
 
-          <Pressable
-            style={styles.boton}
-            onPress={resetearApp}
-          >
-            <Text style={styles.textoBoton}>Reiniciar App</Text>
-          </Pressable>
 
-          <Text style={styles.valor}>
-            <Text style={styles.label}>Presupuesto: {''}</Text>
-              {formatearCantidad(presupuesto)}
+      {/* Cards de información */}
+      <View style={styles.cardsContainer}>
+        {/* Card Presupuesto */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainer}>
+              <Image 
+                source={require('../../assets/presupuesto.png')}
+                style={styles.iconImage}
+              />
+            </View>
+            <Text style={styles.cardTitle}>Presupuesto</Text>
+          </View>
+          <Text style={styles.cardAmount}>{formatearCantidad(presupuesto)}</Text>
+        </View>
+
+        {/* Card Disponible */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainer}>
+              <Image 
+                source={require('../../assets/disponible.png')}
+                style={styles.iconImage}
+              />
+            </View>
+            <Text style={styles.cardTitle}>Disponible</Text>
+          </View>
+          <Text style={[styles.cardAmount, { color: disponible >= 0 ? '#059669' : '#dc2626' }]}>
+            {formatearCantidad(disponible)}
           </Text>
-          <Text style={styles.valor}>
-            <Text style={styles.label}>Disponible: {''}</Text>
-              {formatearCantidad(disponible)}
-          </Text>
-          <Text style={styles.valor}>
-            <Text style={styles.label}>Gastado: {''}</Text>
-              {formatearCantidad(gastado)}
-          </Text>
+        </View>
 
-    </View>
-
+        {/* Card Gastado */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainer}>
+              <Image 
+                source={require('../../assets/gastado.png')}
+                style={styles.iconImage}
+              />
+            </View>
+            <Text style={styles.cardTitle}>Gastado</Text>
+          </View>
+          <Text style={[styles.cardAmount, { color: '#dc2626' }]}>{formatearCantidad(gastado)}</Text>
+        </View>
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   contenedor: {
-    ...globalStyles.contenedor
+    ...globalStyles.contenedor,
+    paddingHorizontal: 20,
+    paddingVertical: 30
   },
-  centrarGrafica: {
+  graficaContainer: {
     alignItems: 'center',
+    marginBottom: 40,
+    marginTop: 5,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 30,
+    // Sombras optimizadas para Android
+    ...Platform.select({
+      android: {
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+      }
+    })
   },
-boton: {
-  backgroundColor: '#db2777',
-  padding: 10,
-  marginBottom: 40,
-  borderRadius: 5
-},
-textoBoton: {
-  textAlign: 'center',
-  color: '#fff',
-  fontWeight: 'bold',
-  textTransform: 'uppercase'
-},
-  contenedorTexto: {
-    marginTop: 50
+  tituloGrafica: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#64748b'
   },
-  valor: {
+
+  cardsContainer: {
+    gap: 16
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    // Sombra sutil para Android
+    ...Platform.select({
+      android: {
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      }
+    })
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  iconImage: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain'
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#64748b',
+    textTransform: 'capitalize'
+  },
+  cardAmount: {
     fontSize: 24,
-    textAlign: 'center',
-    marginBottom: 10
-  },
-  label: {
-    fontWeight: '700',
-    color: '#3b82f6'
+    fontWeight: 'bold',
+    color: '#1e293b',
+    textAlign: 'center'
   }
 })
 

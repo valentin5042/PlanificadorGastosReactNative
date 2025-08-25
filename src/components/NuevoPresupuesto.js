@@ -11,7 +11,6 @@ const NuevoPresupuesto = ({ presupuesto, setPresupuesto, handleNuevoPresupuesto 
     <View style={styles.contenedor}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.titulo}>PLANIFICADOR DE GASTOS</Text>
         <Text style={styles.subtitulo}>Establece tu límite de gastos mensual</Text>
       </View>
 
@@ -124,14 +123,6 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 32
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1e293b',
-    textAlign: 'center',
-    marginBottom: 8,
-    letterSpacing: 1
   },
   subtitulo: {
     fontSize: 16,

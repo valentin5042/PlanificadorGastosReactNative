@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Text, SafeAreaView, View, TextInput, StyleSheet, Pressable } from 'react-native'
+import { Text, SafeAreaView, View, TextInput, StyleSheet, Pressable, Platform } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
+import { LinearGradient } from 'expo-linear-gradient'
 
 import globalStyles from '../styles'
 
@@ -25,148 +26,288 @@ const FormularioGasto = ({ setModal, handleGasto, gasto, setGasto, eliminarGasto
 
   return (
     <SafeAreaView style={styles.contenedor}>
-        <View style={styles.contenedorBotones}>
-            <Pressable 
-                onLongPress={() => {
-                    setModal(false)
-                    setGasto({})
-                }}
-                style={[styles.btn, styles.btnCancelar]}>
-                <Text style={styles.btnTexto}>Cancelar</Text>
-            </Pressable>
-
-            { !!id && (
-                <Pressable 
-                    style={[styles.btn, styles.btnEliminar]}
-                    onLongPress={() => eliminarGasto(id)}
-                >
-                <Text style={styles.btnTexto}>Eliminar</Text>
-            </Pressable>
-            ) }
-        </View>
-
-        <View style={styles.formulario}>
+        {/* Header con botones */}
+        <View style={styles.header}>
             <Text style={styles.titulo}>{gasto?.nombre ? 'Editar Gasto' : 'Nuevo Gasto'}</Text>
-
-            <View style={styles.campo}>
-                <Text style={styles.label}>Nombre Gasto</Text>
-                <TextInput 
-                style={styles.input}
-                    placeholder='Nombre del gasto. ej. comida'
-                    value={nombre}
-                    onChangeText={setNombre}
-                />
-            </View>
-
-            <View style={styles.campo}>
-                <Text style={styles.label}>Cantidad Gasto</Text>
-                <TextInput 
-                    style={styles.input}
-                    placeholder='Cantidad del gasto. ej. 300'
-                    keyboardType='numeric'
-                    value={cantidad}
-                    onChangeText={setCantidad}
-                />
-            </View>
-
-            <View style={styles.campo}>
-                <Text style={styles.label}>Categoria Gasto</Text>
-                <Picker
-                    selectedValue={categoria}
-                    onValueChange={(valor) => {
-                        setCategoria(valor)
+            
+            <View style={styles.contenedorBotones}>
+                <Pressable 
+                    onPress={() => {
+                        setModal(false)
+                        setGasto({})
                     }}
-                >
-                    <Picker.Item label='-- Seleccione --' value="" />
-                    <Picker.Item label='Ahorro' value="ahorro" />
-                    <Picker.Item label='Comida' value="comida" />
-                    <Picker.Item label='Casa' value="casa" />
-                    <Picker.Item label='Gastos Varios' value="gastos" />
-                    <Picker.Item label='Salud' value="salud" />
-                    <Picker.Item label='Suscripciones' value="suscripciones" />
-                </Picker>
+                    style={({ pressed }) => [
+                        styles.btn,
+                        styles.btnCancelar,
+                        pressed && styles.btnPressed
+                    ]}>
+                    <Text style={styles.btnTexto}>Cancelar</Text>
+                </Pressable>
+
+                { !!id && (
+                    <Pressable 
+                        style={({ pressed }) => [
+                            styles.btn,
+                            styles.btnEliminar,
+                            pressed && styles.btnPressed
+                        ]}
+                        onPress={() => eliminarGasto(id)}
+                    >
+                        <Text style={styles.btnTexto}>Eliminar</Text>
+                    </Pressable>
+                ) }
+            </View>
+        </View>
+
+        {/* Formulario principal */}
+        <View style={styles.formulario}>
+            <View style={styles.campo}>
+                <Text style={styles.label}>Nombre del Gasto</Text>
+                <View style={styles.inputContainer}>
+                    <TextInput 
+                        style={styles.input}
+                        placeholder='Ej. Comida, Transporte, Entretenimiento'
+                        placeholderTextColor='#94a3b8'
+                        value={nombre}
+                        onChangeText={setNombre}
+                    />
+                </View>
             </View>
 
+            <View style={styles.campo}>
+                <Text style={styles.label}>Cantidad</Text>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.currencySymbol}>$</Text>
+                    <TextInput 
+                        style={styles.input}
+                        placeholder='0.00'
+                        placeholderTextColor='#94a3b8'
+                        keyboardType='numeric'
+                        value={cantidad}
+                        onChangeText={setCantidad}
+                    />
+                </View>
+            </View>
+
+            <View style={styles.campo}>
+                <Text style={styles.label}>Categoría</Text>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={categoria}
+                        onValueChange={(valor) => {
+                            setCategoria(valor)
+                        }}
+                        style={styles.picker}
+                        itemStyle={styles.pickerItem}
+                    >
+                        <Picker.Item label='-- Seleccione una categoría --' value="" />
+                        <Picker.Item label='Ahorro' value="ahorro" />
+                        <Picker.Item label='Comida' value="comida" />
+                        <Picker.Item label='Casa' value="casa" />
+                        <Picker.Item label='Gastos Varios' value="gastos" />
+                        <Picker.Item label='Salud' value="salud" />
+                        <Picker.Item label='Suscripciones' value="suscripciones" />
+                    </Picker>
+                </View>
+            </View>
+
+            {/* Botón principal */}
             <Pressable 
-                style={styles.submitBtn}
+                style={({ pressed }) => [
+                    styles.submitBtn,
+                    pressed && styles.submitBtnPressed
+                ]}
                 onPress={() => handleGasto({ nombre, cantidad, categoria, id, fecha })}
+            >
+                <LinearGradient
+                    colors={['#1e40af', '#1e3a8a', '#1e3a8a']}
+                    style={styles.submitBtnGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
                 >
-                <Text style={styles.submitBtnTexto}>{gasto?.nombre ? 'Guardar Cambios Gasto' : 'Agregar Gasto'}</Text>
+                    <Text style={styles.submitBtnTexto}>
+                        {gasto?.nombre ? 'Guardar Cambios' : 'Agregar Gasto'}
+                    </Text>
+                </LinearGradient>
             </Pressable>
-
         </View>
-        
-
     </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
     contenedor: {
-        backgroundColor: '#1e40af',
+        backgroundColor: '#000A2C',
         flex: 1
     },
-    contenedorBotones: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    btn: {
-        padding: 10,
-        marginTop: 30,
-        marginHorizontal: 10,
-        borderRadius: 7,
-        flex: 1
-    },
-    btnCancelar: {
-        backgroundColor: '#bd2777',
-
-    },
-    btnEliminar: {
-        backgroundColor: 'red'
-    },
-    btnTexto: {
-        textAlign: 'center',
-        textTransform: 'uppercase',
-        fontWeight: 'bold',
-        color: '#fff'
-    },
-    formulario: {
-        ...globalStyles.contenedor
+    header: {
+        paddingTop: Platform.OS === 'android' ? 40 : 30,
+        paddingHorizontal: 20,
+        paddingBottom: 20
     },
     titulo: {
         textAlign: 'center',
         fontSize: 28,
         marginBottom: 30,
-        color: '#64748b'
+        color: '#ffffff',
+        fontWeight: 'bold',
+        letterSpacing: 1
+    },
+    contenedorBotones: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12
+    },
+    btn: {
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        alignItems: 'center',
+        // Sombra para Android
+        ...Platform.select({
+            android: {
+                elevation: 4,
+            },
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+            }
+        })
+    },
+    btnPressed: {
+        transform: [{ scale: 0.98 }]
+    },
+    btnCancelar: {
+        backgroundColor: '#6b7280',
+    },
+    btnEliminar: {
+        backgroundColor: '#dc2626',
+    },
+    btnTexto: {
+        textAlign: 'center',
+        textTransform: 'uppercase',
+        fontWeight: '600',
+        color: '#ffffff',
+        fontSize: 14,
+        letterSpacing: 0.5
+    },
+    formulario: {
+        backgroundColor: '#ffffff',
+        borderRadius: 30,
+        paddingHorizontal: 20,
+        paddingTop: 25,
+        paddingBottom: 25,
+        marginHorizontal: 20,
+        marginTop: 30
     },
     campo: {
-        marginVertical: 10
+        marginBottom: 16
     },
     label: {
-        color: '#64748b',
+        color: '#1e293b',
         textTransform: 'uppercase',
-        fontSize: 16,
-        fontWeight: 'bold'
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 8,
+        letterSpacing: 0.5
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f8fafc',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        borderWidth: 2,
+        borderColor: '#e2e8f0',
+        // Sombra sutil para Android
+        ...Platform.select({
+            android: {
+                elevation: 2,
+            },
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+            }
+        })
+    },
+    currencySymbol: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#1e40af',
+        marginRight: 12
     },
     input: {
-        backgroundColor: '#f5f5f5',
-        padding: 10,
-        borderRadius: 10,
-        marginTop: 10
+        flex: 1,
+        fontSize: 16,
+        color: '#1e293b',
+        fontWeight: '500'
+    },
+    pickerContainer: {
+        backgroundColor: '#f8fafc',
+        borderRadius: 16,
+        borderWidth: 2,
+        borderColor: '#e2e8f0',
+        overflow: 'hidden',
+        paddingVertical: 8,
+        // Sombra sutil para Android
+        ...Platform.select({
+            android: {
+                elevation: 2,
+            },
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+            }
+        })
+    },
+    picker: {
+        backgroundColor: 'transparent',
+        color: '#1e293b'
+    },
+    pickerItem: {
+        fontSize: 16,
+        color: '#1e293b'
     },
     submitBtn: {
-        backgroundColor: '#3b82f6',
-        padding: 10,
+        borderRadius: 16,
+        overflow: 'hidden',
         marginTop: 20,
-        borderRadius: 7
+        // Sombra para Android
+        ...Platform.select({
+            android: {
+                elevation: 6,
+            },
+            ios: {
+                shadowColor: '#1e40af',
+                shadowOffset: { width: 0, height: 3 },
+                shadowOpacity: 0.4,
+                shadowRadius: 6,
+            }
+        })
+    },
+    submitBtnPressed: {
+        transform: [{ scale: 0.98 }]
+    },
+    submitBtnGradient: {
+        paddingVertical: 16,
+        paddingHorizontal: 32,
+        alignItems: 'center'
     },
     submitBtnTexto: {
-        textAlign: 'center',
-        color: '#fff',
-        fontWeight: 'bold',
-        textTransform: 'uppercase'
+        color: '#ffffff',
+        fontSize: 18,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5
     }
-
 })
 
 export default FormularioGasto
